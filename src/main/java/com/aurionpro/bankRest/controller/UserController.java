@@ -1,9 +1,6 @@
 package com.aurionpro.bankRest.controller;
 
-import com.aurionpro.bankRest.dto.BankAccountDto;
-import com.aurionpro.bankRest.dto.CustomerDto;
-import com.aurionpro.bankRest.dto.PageResponse;
-import com.aurionpro.bankRest.dto.TransactionDto;
+import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,20 +37,20 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @PostMapping("/{accountNumber}/credit")
-    public ResponseEntity<TransactionDto> credit(@PathVariable Long accountNumber, @RequestParam Double amount) {
-        return new ResponseEntity<>(userService.credit(accountNumber, amount),HttpStatus.OK);
+    @PostMapping("/credit")
+    public ResponseEntity<TransactionDto> credit(@RequestBody PerformTransactionDTO performTransactionDTO) {
+        return new ResponseEntity<>(userService.credit(performTransactionDTO),HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @PostMapping("/{accountNumber}/debit")
-    public ResponseEntity<TransactionDto> debit(@PathVariable Long accountNumber, @RequestParam Double amount) {
-        return new ResponseEntity<>(userService.debit(accountNumber, amount),HttpStatus.OK);
+    @PostMapping("/debit")
+    public ResponseEntity<TransactionDto> debit(@RequestBody PerformTransactionDTO performTransactionDTO) {
+        return new ResponseEntity<>(userService.debit(performTransactionDTO),HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
-    @PostMapping("{senderAccountNumber}/transfer")
-    public ResponseEntity<TransactionDto> transfer(@PathVariable Long senderAccountNumber, @RequestParam Long receiverAccountNumber, @RequestParam Double amount) {
-        return new ResponseEntity<>(userService.transfer(senderAccountNumber, receiverAccountNumber, amount),HttpStatus.OK);
+    @PostMapping("/transfer")
+    public ResponseEntity<TransactionDto> transfer(@RequestBody PerformTransactionDTO performTransactionDTO) {
+        return new ResponseEntity<>(userService.transfer(performTransactionDTO),HttpStatus.OK);
     }
 }

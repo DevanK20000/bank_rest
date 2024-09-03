@@ -1,9 +1,6 @@
 package com.aurionpro.bankRest.service;
 
-import com.aurionpro.bankRest.dto.BankAccountDto;
-import com.aurionpro.bankRest.dto.CustomerDto;
-import com.aurionpro.bankRest.dto.PageResponse;
-import com.aurionpro.bankRest.dto.TransactionDto;
+import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.entity.BankAccount;
 import com.aurionpro.bankRest.entity.Customer;
 import com.aurionpro.bankRest.entity.Transaction;
@@ -65,7 +62,10 @@ public class UserService {
     }
 
     @Transactional
-    public TransactionDto credit(Long accountNumber, Double amount) {
+    public TransactionDto credit(PerformTransactionDTO performTransactionDTO) {
+        Long accountNumber = performTransactionDTO.getAccountNumber();
+        Double amount =  performTransactionDTO.getAmount();
+
         if(amount<=0)
             throw new UserApiException(HttpStatus.BAD_REQUEST,"Amount should be greater than zero");
 
@@ -85,7 +85,10 @@ public class UserService {
     }
 
     @Transactional
-    public TransactionDto debit(Long accountNumber, Double amount) {
+    public TransactionDto debit(PerformTransactionDTO performTransactionDTO) {
+        Long accountNumber = performTransactionDTO.getAccountNumber();
+        Double amount =  performTransactionDTO.getAmount();
+
         if(amount<=0)
             throw new UserApiException(HttpStatus.BAD_REQUEST,"Amount should be greater than zero");
 
@@ -158,15 +161,20 @@ public class UserService {
     }
 
     @Transactional
-    public TransactionDto transfer(Long senderAccountNumber, Long receiverAccountNumber, Double amount) {
+    public TransactionDto transfer(PerformTransactionDTO performTransactionDTO) {
+        Long senderAccountNumber = performTransactionDTO.getAccountNumber();
+        Double amount =  performTransactionDTO.getAmount();
+        long receiverAccountNumber = performTransactionDTO.getReceiverAccountNumber();
+
     	if(senderAccountNumber.equals(receiverAccountNumber))
     		throw new UserApiException(HttpStatus.BAD_REQUEST,"Cant self transfer");
     	
     	// Perform debit operation on sender's account
-        debit(senderAccountNumber, amount);
+        debit(performTransactionDTO);
 
         // Perform credit operation on receiver's account
-        credit(receiverAccountNumber, amount);
+        PerformTransactionDTO creditPerformTransactionDTO = new PerformTransactionDTO(receiverAccountNumber,amount,null);
+        credit(creditPerformTransactionDTO);
 
         // Create a new transaction to log the transfer
         Transaction transaction = new Transaction();
