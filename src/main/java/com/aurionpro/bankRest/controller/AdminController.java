@@ -2,6 +2,7 @@ package com.aurionpro.bankRest.controller;
 
 import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.service.AdminServices;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +36,13 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users/customers")
-    public ResponseEntity<CustomerDto> addCustomerToUserId(@RequestBody AddCustomerDto addCustomerDto) {
+    public ResponseEntity<CustomerDto> addCustomerToUserId(@Valid @RequestBody AddCustomerDto addCustomerDto) {
         return new ResponseEntity<CustomerDto>(adminServices.addCustomerToUserId(addCustomerDto), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/customers/bankAccounts")
-    public ResponseEntity<BankAccountDto> addBankAccountToCustomer(@RequestBody AddBankAccountDto addBankAccountDto) {
+    public ResponseEntity<BankAccountDto> addBankAccountToCustomer(@Valid @RequestBody AddBankAccountDto addBankAccountDto) {
         return new ResponseEntity<BankAccountDto>(adminServices.addBankAccountToCustomer(addBankAccountDto), HttpStatus.CREATED);
     }
 }

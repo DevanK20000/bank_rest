@@ -2,6 +2,7 @@ package com.aurionpro.bankRest.controller;
 
 import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,19 +38,19 @@ public class UserController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/credit")
-    public ResponseEntity<TransactionDto> credit(@RequestBody PerformTransactionDTO performTransactionDTO) {
+    public ResponseEntity<TransactionDto> credit(@Valid @RequestBody PerformTransactionDTO performTransactionDTO) {
         return new ResponseEntity<>(userService.credit(performTransactionDTO),HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/debit")
-    public ResponseEntity<TransactionDto> debit(@RequestBody PerformTransactionDTO performTransactionDTO) {
+    public ResponseEntity<TransactionDto> debit(@Valid @RequestBody PerformTransactionDTO performTransactionDTO) {
         return new ResponseEntity<>(userService.debit(performTransactionDTO),HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/transfer")
-    public ResponseEntity<TransactionDto> transfer(@RequestBody PerformTransactionDTO performTransactionDTO) {
+    public ResponseEntity<TransactionDto> transfer(@Valid @RequestBody PerformTransactionDTO performTransactionDTO) {
         return new ResponseEntity<>(userService.transfer(performTransactionDTO),HttpStatus.OK);
     }
 }
