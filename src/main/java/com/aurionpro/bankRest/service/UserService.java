@@ -151,12 +151,18 @@ public class UserService {
         User user = userRepository.findByUsername(username).orElseThrow(()-> new UserApiException(HttpStatus.BAD_REQUEST,"Invalid login"));
         Customer customer = customerRepository.findByUser(user).orElseThrow(()-> new UserApiException(HttpStatus.NOT_FOUND,"Customer Not Found"));
         List<BankAccount> bankAccounts = bankAccountRepository.findByCustomer(customer).orElseThrow(()-> new UserApiException(HttpStatus.BAD_REQUEST,"No bank accounts"));
-        return  bankAccounts.stream().filter(account -> account.getAccountNumber().equals(accountNumber)).toList().get(0);
+        List<BankAccount> filteredBankAccounts = bankAccounts.stream().filter(account -> account.getAccountNumber().equals(accountNumber)).toList();
+        if(filteredBankAccounts.isEmpty())
+        	throw new UserApiException(HttpStatus.NOT_FOUND,"Account number not found");
+        return  filteredBankAccounts.get(0);
     }
 
     @Transactional
     public TransactionDto transfer(Long senderAccountNumber, Long receiverAccountNumber, Double amount) {
-        // Perform debit operation on sender's account
+    	if(senderAccountNumber.equals(receiverAccountNumber))
+    		throw new UserApiException(HttpStatus.BAD_REQUEST,"Cant self transfer");
+    	
+    	// Perform debit operation on sender's account
         debit(senderAccountNumber, amount);
 
         // Perform credit operation on receiver's account
