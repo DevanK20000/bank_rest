@@ -1,9 +1,6 @@
 package com.aurionpro.bankRest.utils;
 
-import com.aurionpro.bankRest.dto.BankAccountDto;
-import com.aurionpro.bankRest.dto.CustomerDto;
-import com.aurionpro.bankRest.dto.LoginDto;
-import com.aurionpro.bankRest.dto.TransactionDto;
+import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.entity.BankAccount;
 import com.aurionpro.bankRest.entity.Customer;
 import com.aurionpro.bankRest.entity.Transaction;
@@ -20,6 +17,14 @@ public class DtoToEntityConverter {
         return customer;
     }
 
+    public static Customer toCustomerEntity(AddCustomerDto addCustomerDto){
+        Customer customer = new Customer();
+        customer.setFirstName(addCustomerDto.getFirstName());
+        customer.setLastName(addCustomerDto.getLastName());
+        customer.setEmail(addCustomerDto.getEmail());
+        return customer;
+    }
+
     public static BankAccount toBankAccountEntity(BankAccountDto bankAccountDto) {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setAccountNumber(bankAccountDto.getAccountNumber());
@@ -28,6 +33,16 @@ public class DtoToEntityConverter {
         bankAccount.setMinOrOverdueLimit(bankAccountDto.getMinOrOverdueLimit());
         return bankAccount;
     }
+
+    public static BankAccount toBankAccountEntity(AddBankAccountDto addBankAccountDto) {
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setAccountNumber(addBankAccountDto.getAccountNumber());
+        bankAccount.setAccountType(addBankAccountDto.getAccountType());
+        bankAccount.setBalance(addBankAccountDto.getBalance());
+        bankAccount.setMinOrOverdueLimit(addBankAccountDto.getMinOrOverdueLimit());
+        return bankAccount;
+    }
+
 
     public static User toLoginEntity(LoginDto loginDto) {
         User user = new User();

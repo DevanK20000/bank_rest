@@ -1,9 +1,6 @@
 package com.aurionpro.bankRest.service;
 
-import com.aurionpro.bankRest.dto.BankAccountDto;
-import com.aurionpro.bankRest.dto.CustomerDto;
-import com.aurionpro.bankRest.dto.PageResponse;
-import com.aurionpro.bankRest.dto.TransactionDto;
+import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.entity.BankAccount;
 import com.aurionpro.bankRest.entity.Customer;
 import com.aurionpro.bankRest.entity.Transaction;
@@ -40,12 +37,12 @@ public class AdminServices {
     private TransactionRepository transactionRepository;
 
     @Transactional
-    public CustomerDto addCustomerToUserId(Integer userId,CustomerDto customerDto) {
+    public CustomerDto addCustomerToUserId(AddCustomerDto addCustomerDto) {
         //Get Login
-        User user = userRepository.findById(userId).orElseThrow(()-> new UserApiException(HttpStatus.NOT_FOUND,"Invalid login Id"));
+        User user = userRepository.findById(addCustomerDto.getUserId()).orElseThrow(()-> new UserApiException(HttpStatus.NOT_FOUND,"Invalid login Id"));
 
-        // Convert CustomerDto to Customer entity and set the saved login
-        Customer customer = DtoToEntityConverter.toCustomerEntity(customerDto);
+        // Convert AddCustomerDto to Customer entity and set the saved login
+        Customer customer = DtoToEntityConverter.toCustomerEntity(addCustomerDto);
         customer.setUser(user);
 
         // Convert saved customer entity to DTO and return
@@ -53,13 +50,13 @@ public class AdminServices {
     }
 
     @Transactional
-    public BankAccountDto addBankAccountToCustomer(int customerId, BankAccountDto bankAccountDto) {
+    public BankAccountDto addBankAccountToCustomer(AddBankAccountDto addBankAccountDto) {
         // Find the customer by ID
-        Customer customer = customerRepository.findById(customerId)
+        Customer customer = customerRepository.findById(addBankAccountDto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        // Convert BankAccountDto to BankAccount entity
-        BankAccount bankAccount = DtoToEntityConverter.toBankAccountEntity(bankAccountDto);
+        // Convert AddBankAccountDto to BankAccount entity
+        BankAccount bankAccount = DtoToEntityConverter.toBankAccountEntity(addBankAccountDto);
         bankAccount.setCustomer(customer);
 
         // Save bank account entity

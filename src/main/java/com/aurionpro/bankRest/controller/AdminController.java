@@ -1,9 +1,6 @@
 package com.aurionpro.bankRest.controller;
 
-import com.aurionpro.bankRest.dto.BankAccountDto;
-import com.aurionpro.bankRest.dto.CustomerDto;
-import com.aurionpro.bankRest.dto.PageResponse;
-import com.aurionpro.bankRest.dto.TransactionDto;
+import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.service.AdminServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,14 +34,14 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/users/{userId}/customers")
-    public ResponseEntity<CustomerDto> addCustomerToUserId(@PathVariable int userId, @RequestBody CustomerDto customerDto) {
-        return new ResponseEntity<CustomerDto>(adminServices.addCustomerToUserId(userId,customerDto), HttpStatus.CREATED);
+    @PostMapping("/users/customers")
+    public ResponseEntity<CustomerDto> addCustomerToUserId(@RequestBody AddCustomerDto addCustomerDto) {
+        return new ResponseEntity<CustomerDto>(adminServices.addCustomerToUserId(addCustomerDto), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/customers/{customerId}/bankAccounts")
-    public ResponseEntity<BankAccountDto> addBankAccountToCustomer(@PathVariable int customerId, @RequestBody BankAccountDto bankAccountDto) {
-        return new ResponseEntity<BankAccountDto>(adminServices.addBankAccountToCustomer(customerId, bankAccountDto), HttpStatus.CREATED);
+    @PostMapping("/customers/bankAccounts")
+    public ResponseEntity<BankAccountDto> addBankAccountToCustomer(@RequestBody AddBankAccountDto addBankAccountDto) {
+        return new ResponseEntity<BankAccountDto>(adminServices.addBankAccountToCustomer(addBankAccountDto), HttpStatus.CREATED);
     }
 }

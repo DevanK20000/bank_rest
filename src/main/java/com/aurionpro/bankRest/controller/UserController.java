@@ -3,7 +3,6 @@ package com.aurionpro.bankRest.controller;
 import com.aurionpro.bankRest.dto.*;
 import com.aurionpro.bankRest.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
