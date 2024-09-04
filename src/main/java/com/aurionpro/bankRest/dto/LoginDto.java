@@ -14,14 +14,8 @@ public class LoginDto {
 
     @NotNull
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z]{4,16}$")
     private String username;
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W])[a-zA-Z\\d\\W]{3,16}$\n",
-            message = """
-                    At least one lowercase letter.
-                    At least one uppercase letter.
-                    At least one digit.
-                    At least one special character.
-                    The total length of the password is between 3 and 16 characters.""")
+    @NotNull
+    @NotBlank
     private String password;
 }

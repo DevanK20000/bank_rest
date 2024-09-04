@@ -5,6 +5,9 @@ import com.aurionpro.bankRest.dto.LoginDto;
 import com.aurionpro.bankRest.dto.RegistrationDto;
 import com.aurionpro.bankRest.entity.User;
 import com.aurionpro.bankRest.service.AuthService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,13 +24,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegistrationDto registrationDto) {
+    public ResponseEntity<User> register(@Valid @RequestBody RegistrationDto registrationDto) {
         //TODO: process POST request
         return ResponseEntity.ok(authService.register(registrationDto));
     }
 
     @GetMapping("/login")
-    public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<JwtAuthResponse> login(@Valid @RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto);
         JwtAuthResponse jwtAuthResonse = new JwtAuthResponse();
         jwtAuthResonse.setAccessToken(token);

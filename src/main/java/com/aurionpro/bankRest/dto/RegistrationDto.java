@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class RegistrationDto {
     @NotNull
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z]{4,16}$")
+    @Pattern(regexp = "^[a-zA-Z]{4,16}$", message = "Username should be 4 to 16 character long and should be alphabetic characters")
     private String username;
 
     @NotNull
