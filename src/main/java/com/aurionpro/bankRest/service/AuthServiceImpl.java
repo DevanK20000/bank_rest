@@ -11,6 +11,8 @@ import com.aurionpro.bankRest.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -45,23 +48,45 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceImpl.class);
+
     @Override
     public User register(RegistrationDto registrationDto) {
-        // TODO Auto-generated method stub
-        if (userRepository.existsByUsername(registrationDto.getUsername()))
-            throw new UserApiException(HttpStatus.BAD_REQUEST, "User already exists");
+        LOGGER.info("Attempting to register user with username: {}", registrationDto.getUsername());
 
+        // Check if the username already exists
+        if (userRepository.existsByUsername(registrationDto.getUsername())) {
+            LOGGER.error("Registration failed: Username '{}' already exists", registrationDto.getUsername());
+            throw new UserApiException(HttpStatus.BAD_REQUEST, "User already exists");
+        }
+
+        // Create a new user entity and set the username and encoded password
         User user = new User();
         user.setUsername(registrationDto.getUsername());
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
 
-        List<Role> roles = new ArrayList<Role>();
+        LOGGER.info("User entity created for username: {}. Password is encoded.", registrationDto.getUsername());
 
-        Role userRole = roleRepository.findByRoleName(registrationDto.getRole()).get();
+        // Assign roles to the user
+        List<Role> roles = new ArrayList<>();
+        Role userRole = roleRepository.findByRoleName(registrationDto.getRole())
+                .orElseThrow(() -> {
+                    LOGGER.error("Role '{}' not found for registration", registrationDto.getRole());
+                    return new UserApiException(HttpStatus.BAD_REQUEST, "Invalid role");
+                });
         roles.add(userRole);
         user.setRoles(roles);
-        return userRepository.save(user);
+
+        LOGGER.info("Roles assigned to user: {}", roles.stream().map(Role::getRoleName).collect(Collectors.joining(", ")));
+
+        // Save the user entity and return
+        User savedUser = userRepository.save(user);
+
+        LOGGER.info("User registered successfully with username: {}", savedUser.getUsername());
+
+        return savedUser;
     }
+
 
     @Override
     public String login(LoginDto loginDto) {
