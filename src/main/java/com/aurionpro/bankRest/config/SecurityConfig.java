@@ -45,18 +45,9 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable).cors(withDefaults());
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
-        http.authorizeHttpRequests(request -> request.requestMatchers("/api/register").permitAll());
+//        http.authorizeHttpRequests(request -> request.requestMatchers("/api/register").permitAll());
         http.authorizeHttpRequests(request -> request.requestMatchers("/api/login").permitAll());
 
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.GET, "/api/admin/**"));
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, "/api/admin/**"));
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.PUT, "/api//admin/**"));
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.DELETE, "/api//admin/**"));
-//
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.GET, "/api/users/**"));
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, "/api/users/**"));
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.PUT, "/api/users/**"));
-//        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.DELETE, "/api/users/**"));
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
         http.addFilterBefore(jwtAuthenticaionFilter, UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(request -> request.anyRequest().authenticated());

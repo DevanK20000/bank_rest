@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
     public ResponseEntity<User> register(@Valid @RequestBody RegistrationDto registrationDto) {
         //TODO: process POST request
@@ -32,10 +34,10 @@ public class AuthController {
     @GetMapping("/login")
     public ResponseEntity<JwtAuthResponse> login(@Valid @RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto);
-        JwtAuthResponse jwtAuthResonse = new JwtAuthResponse();
-        jwtAuthResonse.setAccessToken(token);
+        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+        jwtAuthResponse.setAccessToken(token);
 
-        return ResponseEntity.ok(jwtAuthResonse);
+        return ResponseEntity.ok(jwtAuthResponse);
     }
 
 }
