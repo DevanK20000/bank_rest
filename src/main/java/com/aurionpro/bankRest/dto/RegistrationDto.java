@@ -18,7 +18,7 @@ public class RegistrationDto {
 
     @NotNull
     @NotBlank
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W])[a-zA-Z\\d\\W]{3,16}$\n",
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W])[a-zA-Z\\d\\W]{3,16}$",
             message = """
                     At least one lowercase letter.
                     At least one uppercase letter.
