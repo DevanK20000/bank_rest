@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.time.Instant;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,5 +17,5 @@ public class TransactionDto {
 	private Long receiverAccount;
 	private TransactionType transactionType;
 	private Double amount;
-	private Date date;
+	private Instant dateTime;
 }

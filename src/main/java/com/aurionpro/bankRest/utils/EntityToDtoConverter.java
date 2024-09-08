@@ -43,7 +43,7 @@ public class EntityToDtoConverter {
 		transactionDto.setReceiverAccount(transaction.getReceiverAccount()==null?null:transaction.getReceiverAccount().getAccountNumber());
 		transactionDto.setAmount(transaction.getAmount());
 		transactionDto.setTransactionType(transaction.getTransactionType());
-		transactionDto.setDate(transaction.getDate());
+		transactionDto.setDateTime(transaction.getDateTime());
 		return transactionDto;
 	}
 }

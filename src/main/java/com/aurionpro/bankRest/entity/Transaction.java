@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Date;
+import java.time.Instant;
 
 @Entity
 @Table(name="transactions")
@@ -41,6 +42,6 @@ public class Transaction {
 	
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
-	private Date date;
+	private Instant dateTime;
 	
 }

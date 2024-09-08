@@ -56,7 +56,7 @@ public class DtoToEntityConverter {
         transaction.setTransactionId(transactionDto.getTransactionId());
         transaction.setAmount(transactionDto.getAmount());
         transaction.setTransactionType(transactionDto.getTransactionType());
-        transaction.setDate(transactionDto.getDate());
+        transaction.setDateTime(transactionDto.getDateTime());
         // TODO: You will need to set senderAccount and receiverAccount separately
         return transaction;
     }
