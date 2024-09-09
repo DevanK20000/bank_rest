@@ -18,20 +18,20 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/customers")
-    public ResponseEntity<PageResponse<CustomerDto>> getAllCustomers(@RequestParam int pageNo, @RequestParam int pageSize){
-        return  new ResponseEntity<>(adminServices.getAllCustomers(pageNo,pageSize), HttpStatus.OK);
+    public ResponseEntity<PageResponse<CustomerDto>> getAllCustomers(@RequestParam int pageNo, @RequestParam int pageSize,@RequestParam(required = false,defaultValue = "false") boolean inactive){
+        return new ResponseEntity<>(adminServices.getAllCustomers(pageNo,pageSize,inactive), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/bankAccounts")
-    public ResponseEntity<PageResponse<BankAccountDto>> getAllBankAccounts(@RequestParam int pageNo, @RequestParam int pageSize){
-        return  new ResponseEntity<>(adminServices.getAllBankAccount(pageNo,pageSize), HttpStatus.OK);
+    public ResponseEntity<PageResponse<BankAccountDto>> getAllBankAccounts(@RequestParam int pageNo, @RequestParam int pageSize,@RequestParam(required = false,defaultValue = "false") boolean inactive){
+        return new ResponseEntity<>(adminServices.getAllBankAccount(pageNo,pageSize,inactive), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/transactions")
     public ResponseEntity<PageResponse<TransactionDto>> getAllTransactions(@RequestParam int pageNo, @RequestParam int pageSize){
-        return  new ResponseEntity<>(adminServices.getAllTransactions(pageNo,pageSize), HttpStatus.OK);
+        return new ResponseEntity<>(adminServices.getAllTransactions(pageNo,pageSize), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -44,5 +44,17 @@ public class AdminController {
     @PostMapping("/customers/bankAccounts")
     public ResponseEntity<BankAccountDto> addBankAccountToCustomer(@Valid @RequestBody AddBankAccountDto addBankAccountDto) {
         return new ResponseEntity<BankAccountDto>(adminServices.addBankAccountToCustomer(addBankAccountDto), HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/customers/{customerId}/delete")
+    public ResponseEntity<CustomerDto> softDeleteCustomer(@PathVariable int customerId) {
+        return new ResponseEntity<CustomerDto>(adminServices.softDeleteCustomer(customerId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/bankAccounts/{accountNumber}/delete")
+    public ResponseEntity<BankAccountDto> softDeleteBankAccount(@PathVariable Long accountNumber) {
+        return new ResponseEntity<BankAccountDto>(adminServices.softDeleteBankAccount(accountNumber), HttpStatus.OK);
     }
 }

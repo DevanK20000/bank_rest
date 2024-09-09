@@ -13,23 +13,16 @@ import lombok.NoArgsConstructor;
 @Data
 public class AddBankAccountDto {
     @NotNull
-    @NotBlank
     private int customerId;
-
-    @NotNull
-    @NotBlank
-    private Long accountNumber;
 
     @NotNull
     private AccountType accountType;
 
     @NotNull
-    @NotBlank
     @Min(0)
     private Double balance;
 
     @NotNull
-    @NotBlank
     @Min(0)
     private Double minOrOverdueLimit;
 }

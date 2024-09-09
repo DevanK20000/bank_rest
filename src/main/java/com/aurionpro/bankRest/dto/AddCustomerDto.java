@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class AddCustomerDto {
 
 	@NotNull
-	@NotBlank
 	private int userId;
 
 	@NotNull

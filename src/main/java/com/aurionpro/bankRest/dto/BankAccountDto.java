@@ -21,7 +21,6 @@ public class BankAccountDto {
 	private AccountType accountType;
 
 	@NotNull
-	@NotBlank
 	@Min(0)
 	private Double balance;
 
@@ -29,4 +28,7 @@ public class BankAccountDto {
 	@NotBlank
 	@Min(0)
 	private Double minOrOverdueLimit;
+
+	@NotNull
+	private boolean active;
 }

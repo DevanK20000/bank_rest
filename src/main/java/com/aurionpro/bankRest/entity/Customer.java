@@ -37,6 +37,9 @@ public class Customer {
     @Email
     private String email;
 
+    @NotNull
+    private boolean active=true;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="userId")
     private User user;

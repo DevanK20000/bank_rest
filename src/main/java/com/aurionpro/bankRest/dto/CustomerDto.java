@@ -27,4 +27,8 @@ public class CustomerDto {
 	@NotBlank
 	@Email
 	private String email;
+
+	@NotNull
+	@NotBlank
+	private boolean active;
 }

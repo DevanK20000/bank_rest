@@ -14,6 +14,7 @@ public class DtoToEntityConverter {
         customer.setFirstName(customerDto.getFirstName());
         customer.setLastName(customerDto.getLastName());
         customer.setEmail(customerDto.getEmail());
+        customer.setActive(customer.isActive());
         return customer;
     }
 
@@ -36,7 +37,6 @@ public class DtoToEntityConverter {
 
     public static BankAccount toBankAccountEntity(AddBankAccountDto addBankAccountDto) {
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setAccountNumber(addBankAccountDto.getAccountNumber());
         bankAccount.setAccountType(addBankAccountDto.getAccountType());
         bankAccount.setBalance(addBankAccountDto.getBalance());
         bankAccount.setMinOrOverdueLimit(addBankAccountDto.getMinOrOverdueLimit());

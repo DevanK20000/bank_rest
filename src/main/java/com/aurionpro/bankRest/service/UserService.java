@@ -169,7 +169,7 @@ public class UserService {
 
         List<TransactionDto> transactionDtos = Stream.concat(bankAccount.getSentTransactions().stream(), bankAccount.getReceivedTransactions().stream())
                 .map(EntityToDtoConverter::toTransactionDto)
-                .sorted((o1, o2) -> o2.getDate().compareTo(o1.getDate()))
+                .sorted((o1, o2) -> o2.getDateTime().compareTo(o1.getDateTime()))
                 .toList();
 
         int start = (int) pageable.getOffset();

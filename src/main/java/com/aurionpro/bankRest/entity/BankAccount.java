@@ -3,6 +3,7 @@ package com.aurionpro.bankRest.entity;
 import com.aurionpro.bankRest.entity.enums.AccountType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,9 @@ public class BankAccount {
 	@NotNull
 	@Min(0)
 	private Double minOrOverdueLimit;
+
+	@NotNull
+	private boolean active=true;
 	
 	@ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH})
 	@JoinColumn(name="customerId")

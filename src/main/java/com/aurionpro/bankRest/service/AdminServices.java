@@ -12,6 +12,7 @@ import com.aurionpro.bankRest.repository.TransactionRepository;
 import com.aurionpro.bankRest.repository.UserRepository;
 import com.aurionpro.bankRest.utils.DtoToEntityConverter;
 import com.aurionpro.bankRest.utils.EntityToDtoConverter;
+import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,8 @@ public class AdminServices {
                     LOGGER.error("Customer not found with ID: {}", addBankAccountDto.getCustomerId());
                     return new UserApiException(HttpStatus.NOT_FOUND,"Customer not found");
                 });
+        if(!customer.isActive())
+            throw new UserApiException(HttpStatus.FORBIDDEN,"Customer is inactive");
 
         // Convert AddBankAccountDto to BankAccount entity
         BankAccount bankAccount = DtoToEntityConverter.toBankAccountEntity(addBankAccountDto);
@@ -88,7 +91,7 @@ public class AdminServices {
         return bankAccountDto;
     }
 
-    public PageResponse<CustomerDto> getAllCustomers(int page, int size) {
+    public PageResponse<CustomerDto> getAllCustomers(int page, int size,boolean inactive) {
         LOGGER.info("Fetching all customers with pagination - Page: {}, Size: {}", page, size);
 
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -97,6 +100,11 @@ public class AdminServices {
         List<CustomerDto> content = customerPage.getContent().stream()
                 .map(EntityToDtoConverter::toCustomerDto)
                 .collect(Collectors.toList());
+
+        if(!inactive){
+            LOGGER.info("Filtering inactive customers");
+            content = content.stream().filter(CustomerDto::isActive).toList();
+        }
 
         PageResponse<CustomerDto> response = new PageResponse<>(
                 customerPage.getTotalPages(),
@@ -134,7 +142,7 @@ public class AdminServices {
         return response;
     }
 
-    public PageResponse<BankAccountDto> getAllBankAccount(int pageNo, int pageSize) {
+    public PageResponse<BankAccountDto> getAllBankAccount(int pageNo, int pageSize, boolean inactive) {
         LOGGER.info("Fetching all bank accounts with pagination - Page: {}, Size: {}", pageNo, pageSize);
 
         PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
@@ -143,6 +151,12 @@ public class AdminServices {
         List<BankAccountDto> content = bankAccountPage.getContent().stream()
                 .map(EntityToDtoConverter::toBankAccountDto)
                 .toList();
+
+        if(!inactive){
+            LOGGER.info("Filtering inactive bank accounts");
+            content = content.stream().filter(BankAccountDto::isActive).toList();
+        }
+
 
         PageResponse<BankAccountDto> response = new PageResponse<>(
                 bankAccountPage.getTotalPages(),
@@ -155,5 +169,43 @@ public class AdminServices {
         LOGGER.info("Fetched {} bank accounts successfully", content.size());
 
         return response;
+    }
+
+
+    @Transactional
+    public CustomerDto softDeleteCustomer(int customerId){
+        LOGGER.info("Fetching customer with customer Id : {}", customerId);
+        Customer customer = customerRepository.findById(customerId).orElseThrow(()->{
+            LOGGER.error("Invalid customer Id: {}, customer not found",customerId);
+            return new UserApiException(HttpStatus.NOT_FOUND, "Customer Not Found");
+        });
+
+
+        List<BankAccount> bankAccountList = customer.getBankAccount();
+        LOGGER.info("Fetched {} bank accounts of customer id: {}", bankAccountList.size(), customerId);
+
+        // Using a batch update instead of deleting each account individually
+        bankAccountRepository.updateBankAccountsAsInactive(bankAccountList);
+        LOGGER.info("Soft deleted {} bank accounts for customer id: {}", bankAccountList.size(), customerId);
+
+
+
+        customer.setActive(false);
+        CustomerDto customerDto = EntityToDtoConverter.toCustomerDto(customerRepository.save(customer));
+        LOGGER.info("Soft deleted customer with customer id:{}",customerId);
+        return customerDto;
+    }
+
+    @Transactional
+    public BankAccountDto softDeleteBankAccount(Long accountNumber) {
+        LOGGER.info("Fetching bank account with account number : {}", accountNumber);
+        BankAccount bankAccount = bankAccountRepository.findById(accountNumber).orElseThrow(()->{
+            LOGGER.error("Invalid account number: {}, bank account not found",accountNumber);
+            return new UserApiException(HttpStatus.NOT_FOUND, "Bank account Not Found");
+        });
+        bankAccount.setActive(false);
+        BankAccountDto bankAccountDto = EntityToDtoConverter.toBankAccountDto(bankAccountRepository.save(bankAccount));
+        LOGGER.info("Soft deleted bank account with account number:{}",accountNumber);
+        return bankAccountDto;
     }
 }
