@@ -12,11 +12,9 @@ import lombok.NoArgsConstructor;
 @Data
 public class PerformTransactionDTO {
     @NotNull
-    @NotBlank
     private Long accountNumber;
 
     @NotNull
-    @NotBlank
     @Min(0)
     private Double amount;
 

@@ -12,7 +12,6 @@ import com.aurionpro.bankRest.repository.TransactionRepository;
 import com.aurionpro.bankRest.repository.UserRepository;
 import com.aurionpro.bankRest.utils.DtoToEntityConverter;
 import com.aurionpro.bankRest.utils.EntityToDtoConverter;
-import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

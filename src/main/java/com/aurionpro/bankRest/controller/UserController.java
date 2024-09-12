@@ -39,7 +39,7 @@ public class UserController {
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/credit")
     public ResponseEntity<TransactionDto> credit(@Valid @RequestBody PerformTransactionDTO performTransactionDTO) {
-        return new ResponseEntity<>(userService.credit(performTransactionDTO),HttpStatus.OK);
+        return new ResponseEntity<>(userService.credit(performTransactionDTO,false),HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")

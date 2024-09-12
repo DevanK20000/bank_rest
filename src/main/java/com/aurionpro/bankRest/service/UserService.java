@@ -12,6 +12,7 @@ import com.aurionpro.bankRest.repository.BankAccountRepository;
 import com.aurionpro.bankRest.repository.CustomerRepository;
 import com.aurionpro.bankRest.repository.TransactionRepository;
 import com.aurionpro.bankRest.repository.UserRepository;
+import com.aurionpro.bankRest.utils.EntityIsActiveChecker;
 import com.aurionpro.bankRest.utils.EntityToDtoConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,6 +61,9 @@ public class UserService {
                 });
 
         Optional<Customer> customer = customerRepository.findByUser(user);
+
+        EntityIsActiveChecker.checkIfCustomerIsActive(customer.get());
+
         return customer.map(EntityToDtoConverter::toCustomerDto)
                 .orElseThrow(() -> {
                     LOGGER.error("Customer not found for user '{}'", username);
@@ -79,6 +84,7 @@ public class UserService {
         Optional<Customer> customer = customerRepository.findByUser(user);
         return customer.map(value -> value.getBankAccount().stream()
                         .map(EntityToDtoConverter::toBankAccountDto)
+                        .filter(BankAccountDto::isActive)
                         .collect(Collectors.toList()))
                 .orElseThrow(() -> {
                     LOGGER.error("Customer not found for user '{}'", username);
@@ -87,9 +93,11 @@ public class UserService {
     }
 
     @Transactional
-    public TransactionDto credit(PerformTransactionDTO performTransactionDTO) {
+    public TransactionDto credit(PerformTransactionDTO performTransactionDTO,boolean isTransfer) {
         Long accountNumber = performTransactionDTO.getAccountNumber();
         Double amount = performTransactionDTO.getAmount();
+
+
 
         LOGGER.info("Initiating credit of amount {} to account number {}", amount, accountNumber);
 
@@ -98,7 +106,9 @@ public class UserService {
             throw new UserApiException(HttpStatus.BAD_REQUEST, "Amount should be greater than zero");
         }
 
-        BankAccount bankAccount = getBankAccount(accountNumber);
+        BankAccount bankAccount = getBankAccount(accountNumber,isTransfer);
+
+        EntityIsActiveChecker.checkIfAccountIsActive(bankAccount);
 
         bankAccount.setBalance(bankAccount.getBalance() + amount);
         bankAccountRepository.save(bankAccount);
@@ -128,7 +138,9 @@ public class UserService {
             throw new UserApiException(HttpStatus.BAD_REQUEST, "Amount should be greater than zero");
         }
 
-        BankAccount bankAccount = getBankAccount(accountNumber);
+        BankAccount bankAccount = getBankAccount(accountNumber,false);
+
+        EntityIsActiveChecker.checkIfAccountIsActive(bankAccount);
 
         AccountType accountType = bankAccount.getAccountType();
         double minOrOverdueLimit = bankAccount.getMinOrOverdueLimit();
@@ -164,7 +176,10 @@ public class UserService {
     public PageResponse<TransactionDto> getCustomerTransactions(Long accountNumber, int pageNo, int pageSize) {
         LOGGER.info("Fetching transactions for account number {}", accountNumber);
 
-        BankAccount bankAccount = getBankAccount(accountNumber);
+        BankAccount bankAccount = getBankAccount(accountNumber,false);
+
+        EntityIsActiveChecker.checkIfAccountIsActive(bankAccount);
+
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
         List<TransactionDto> transactionDtos = Stream.concat(bankAccount.getSentTransactions().stream(), bankAccount.getReceivedTransactions().stream())
@@ -189,7 +204,7 @@ public class UserService {
         );
     }
 
-    private BankAccount getBankAccount(Long accountNumber) {
+    private BankAccount getBankAccount(Long accountNumber, boolean isTransfer) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         LOGGER.info("Fetching bank account details for account number {} and username {}", accountNumber, username);
 
@@ -205,13 +220,33 @@ public class UserService {
                     return new UserApiException(HttpStatus.NOT_FOUND, "Customer Not Found");
                 });
 
-        List<BankAccount> bankAccounts = bankAccountRepository.findByCustomer(customer)
+
+        EntityIsActiveChecker.checkIfCustomerIsActive(customer);
+
+        List<BankAccount> bankAccounts = new ArrayList<>();
+        if(isTransfer){
+            bankAccounts.add(bankAccountRepository.findById(accountNumber).orElseThrow(() -> {
+                LOGGER.error("No bank accounts found");
+                return new UserApiException(HttpStatus.BAD_REQUEST, "No bank accounts");
+            }));
+            return bankAccounts.stream()
+                    .filter(BankAccount::isActive)
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        LOGGER.error("Bank account '{}' not found for customer '{}'", accountNumber, customer.getCustomerId());
+                        return new UserApiException(HttpStatus.NOT_FOUND, "Account number not found");
+                    });
+        }
+
+
+        bankAccounts = bankAccountRepository.findByCustomer(customer)
                 .orElseThrow(() -> {
                     LOGGER.error("No bank accounts found for customer '{}'", customer.getCustomerId());
                     return new UserApiException(HttpStatus.BAD_REQUEST, "No bank accounts");
                 });
 
         return bankAccounts.stream()
+                .filter(BankAccount::isActive)
                 .filter(account -> account.getAccountNumber().equals(accountNumber))
                 .findFirst()
                 .orElseThrow(() -> {
@@ -236,7 +271,7 @@ public class UserService {
         debit(performTransactionDTO);
 
         PerformTransactionDTO creditPerformTransactionDTO = new PerformTransactionDTO(receiverAccountNumber, amount, null);
-        credit(creditPerformTransactionDTO);
+        credit(creditPerformTransactionDTO,true);
 
         Transaction transaction = new Transaction();
         transaction.setSenderAccount(bankAccountRepository.findById(senderAccountNumber).orElse(null));

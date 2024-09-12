@@ -2,12 +2,15 @@ package com.aurionpro.bankRest.service;
 
 import com.aurionpro.bankRest.dto.LoginDto;
 import com.aurionpro.bankRest.dto.RegistrationDto;
+import com.aurionpro.bankRest.entity.Customer;
 import com.aurionpro.bankRest.entity.Role;
 import com.aurionpro.bankRest.entity.User;
 import com.aurionpro.bankRest.exception.UserApiException;
+import com.aurionpro.bankRest.repository.CustomerRepository;
 import com.aurionpro.bankRest.repository.RoleRepository;
 import com.aurionpro.bankRest.repository.UserRepository;
 import com.aurionpro.bankRest.security.JwtTokenProvider;
+import com.aurionpro.bankRest.utils.EntityIsActiveChecker;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +50,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceImpl.class);
 
@@ -92,6 +98,18 @@ public class AuthServiceImpl implements AuthService {
     public String login(LoginDto loginDto) {
         // TODO Auto-generated method stub
         try {
+            User user = userRepository.findByUsername(loginDto.getUsername()).orElseThrow(()->{
+                return new UserApiException(HttpStatus.NOT_FOUND,"Username not found");
+            });
+
+            Customer customer = customerRepository.findByUser(user).orElseThrow(()-> {
+                        return new UserApiException(HttpStatus.NOT_FOUND, "Username not found");
+            });
+
+            EntityIsActiveChecker.checkIfCustomerIsActive(customer);
+
+
+            //jwt token
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return jwtTokenProvider.generateToken(authentication);
@@ -100,5 +118,4 @@ public class AuthServiceImpl implements AuthService {
             throw new UserApiException(HttpStatus.NOT_FOUND, "Username or Password is incorrect");
         }
     }
-
 }
